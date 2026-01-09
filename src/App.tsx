@@ -1,35 +1,192 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState, MouseEvent } from "react";
+import "./App.css";
+import { IQuestion, IUserAnswer } from "./types.ts";
+import { getQuestionList } from "./services/fetchQuestions.tsx";
+import { Difficulty, totalQuestions } from "./constants";
+import AppSpinner from "./components/Spinner";
+import { Box, Heading } from "@chakra-ui/react";
+import AppButton from "./components/AppButton";
+import QuestionCard from "./components/QuestionCard";
 
+// Main application component
+// 퀴즈 앱 전체 흐름을 제어하는 메인 컴포넌트
 function App() {
-  const [count, setCount] = useState(0)
+    const [startQuiz, setStartQuiz] = useState(false);
+    const [questions, setQuestions] = useState<IQuestion[]>([]);
+    const [userAnswer, setUserAnswer] = useState<IUserAnswer[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [questionNumber, setQuestionNumber] = useState(0);
+    const [score, setScore] = useState(0);
+    const [gameOver, setGameOver] = useState(false);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect(() => {
+        const fetchQuestions = async () => {
+            const questionListing = await getQuestionList(
+                totalQuestions,
+                Difficulty.EASY
+            );
+            setQuestions(questionListing);
+            setLoading(false);
+        };
+
+        fetchQuestions();
+    }, []);
+
+    const startQuizGame = (): void => {
+        setStartQuiz(true);
+    };
+
+    const checkAnswer = (e: MouseEvent<HTMLButtonElement>): void => {
+        e.preventDefault();
+        if (gameOver) return;
+
+        const chosenAnswer = e.currentTarget.innerText;
+        const correct =
+            questions[questionNumber].correct_answer === chosenAnswer;
+
+        if (correct) setScore((prev) => prev + 1);
+
+        const answerObject: IUserAnswer = {
+            question: questions[questionNumber].question,
+            answer: chosenAnswer,
+            correct,
+            correctAnswer: questions[questionNumber].correct_answer,
+        };
+
+        setUserAnswer((prev) => [...prev, answerObject]);
+    };
+
+    const nextQuestion = (): void => {
+        const next = questionNumber + 1;
+
+        if (next === totalQuestions) {
+            setGameOver(true);
+        } else {
+            setQuestionNumber(next);
+        }
+    };
+
+    const replayQuiz = (): void => {
+        setStartQuiz(false);
+        setGameOver(false);
+        setQuestionNumber(0);
+        setScore(0);
+        setUserAnswer([]);
+    };
+
+    return (
+        <main>
+            {loading && (
+                <div className="app-spinner">
+                    <AppSpinner size="lg" color="purple" />
+                </div>
+            )}
+
+            {userAnswer.length === questionNumber &&
+            !gameOver &&
+            !loading &&
+            !startQuiz ? (
+                <div className="greeting-box">
+                    <Box
+                        boxShadow="base"
+                        p="6"
+                        rounded="md"
+                        bg="white"
+                        maxW="560px"
+                    >
+                        <Heading as="h2" size="lg" mb={2}>
+                            Quiz App
+                        </Heading>
+                        <p>
+                            You will be asked {totalQuestions} true or false
+                            questions.
+                        </p>
+                        <AppButton
+                            colorScheme="purple"
+                            variant="solid"
+                            onClick={startQuizGame}
+                            value="Start Quiz Game"
+                        />
+                    </Box>
+                </div>
+            ) : null}
+
+            {!loading && !gameOver && startQuiz && (
+                <Box
+                    boxShadow="base"
+                    p="6"
+                    rounded="md"
+                    bg="white"
+                    maxW="560px"
+                >
+                    <QuestionCard
+                        question={questions[questionNumber].question}
+                        category={questions[questionNumber].category}
+                        checkAnswer={checkAnswer}
+                        totalQuestions={totalQuestions}
+                        questionNumber={questionNumber}
+                    />
+
+                    <AppButton
+                        disabled={userAnswer.length !== questionNumber + 1}
+                        colorScheme="purple"
+                        variant="solid"
+                        onClick={nextQuestion}
+                        value="Next Question"
+                        width="full"
+                    />
+                </Box>
+            )}
+
+            {gameOver && (
+                <Box
+                    boxShadow="base"
+                    p="6"
+                    rounded="md"
+                    bg="white"
+                    maxW="560px"
+                >
+                    <Box mb={4}>
+                        <Box fontWeight="bold" as="h3" fontSize="4xl">
+                            Game Over!
+                        </Box>
+                        <Box as="h3" fontSize="xl">
+                            Your score is {score}/{totalQuestions}.
+                        </Box>
+                    </Box>
+
+                    {userAnswer.map((answer, index) => (
+                        <Box key={index}>
+                            <div className="answer-list">
+                                <Box fontSize="md" fontWeight="bold">
+                                    Q.
+                                    <p
+                                        dangerouslySetInnerHTML={{
+                                            __html: answer.question,
+                                        }}
+                                    />
+                                </Box>
+                                <ul>
+                                    <li>Your answer: {answer.answer}</li>
+                                    <li>
+                                        Correct answer: {answer.correctAnswer}
+                                    </li>
+                                </ul>
+                            </div>
+                        </Box>
+                    ))}
+
+                    <AppButton
+                        colorScheme="purple"
+                        variant="solid"
+                        onClick={replayQuiz}
+                        value="Replay Quiz"
+                        width="full"
+                    />
+                </Box>
+            )}
+        </main>
+    );
 }
 
-export default App
+export default App;

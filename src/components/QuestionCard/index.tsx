@@ -1,4 +1,5 @@
 import { Box, Flex, Heading, Spacer } from "@chakra-ui/react";
+import { MouseEvent } from "react";
 import AppButton from "../AppButton";
 
 // Props for rendering a quiz question card
@@ -8,7 +9,7 @@ interface QuestionCardProps {
     category: string;
     totalQuestions?: number;
     questionNumber?: number;
-    checkAnswer: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    checkAnswer: (e: MouseEvent<HTMLButtonElement>) => void;
 }
 
 // QuestionCard component
