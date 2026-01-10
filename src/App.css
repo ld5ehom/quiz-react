@@ -1,21 +1,62 @@
+/* App root layout */
+/* 앱 전체 화면 레이아웃 */
+main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a1a1a;
+}
+
+/* Quiz card wrapper */
+/* 퀴즈 카드 중앙 정렬 래퍼 */
+.quiz-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Greeting (start) screen */
+/* 시작 화면 중앙 정렬 */
 .greeting-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: white;
-    text-align: center;
+    width: 100%;
 }
 
-.greeting-box p {
-    margin-bottom: 30px;
-}
-
-.greeting-box > div {
+/* Card container */
+/* 카드 컨테이너 스타일 */
+.greeting-box > div,
+.quiz-wrapper > div {
+    background-color: #ffffff;
+    color: #111111;
     padding: 40px;
+    border-radius: 12px;
+    max-width: 560px;
+    width: 100%;
 }
 
+/* Question text */
+/* 문제 텍스트 색상 */
+h1,
+h2,
+h3,
+p {
+    color: #000000;
+}
+
+/* Disabled button */
+/* 비활성 버튼 스타일 */
+button:disabled {
+    background-color: #6d6d6d;
+    color: #0026ff;
+}
+
+/* Answer list */
+/* 정답 리스트 여백 */
 .answer-list {
-    margin: 25px 0px;
+    margin: 25px 0;
 }
 
 .answer-list ul {

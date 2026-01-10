@@ -1,68 +1,71 @@
-import { Box, Flex, Heading, Spacer } from "@chakra-ui/react";
-import { MouseEvent } from "react";
+import { Box, Heading } from "@chakra-ui/react";
 import AppButton from "../AppButton";
 
-// Props for rendering a quiz question card
-// 퀴즈 문제 카드 렌더링을 위한 props 정의
+// Props for QuestionCard
+// 퀴즈 카드 컴포넌트 props 정의
 interface QuestionCardProps {
     question: string;
     category: string;
-    totalQuestions?: number;
-    questionNumber?: number;
-    checkAnswer: (e: MouseEvent<HTMLButtonElement>) => void;
+    questionNumber: number;
+    totalQuestions: number;
+    checkAnswer: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 // QuestionCard component
-// 퀴즈 진행 상태, 카테고리, 문제 내용, 선택 버튼을 렌더링하는 컴포넌트
+// 진행도, 카테고리, 문제, O/X 버튼을 렌더링
 const QuestionCard = ({
     question,
-    checkAnswer,
     category,
-    totalQuestions,
     questionNumber,
+    totalQuestions,
+    checkAnswer,
 }: QuestionCardProps) => {
     return (
-        <Box bg="white" w="100%">
+        <Box>
+            {/* Progress indicator */}
+            {/* 진행 상태 표시 */}
             <Box
-                mb={6}
-                fontSize="md"
+                fontSize="sm"
                 fontWeight="bold"
+                mb={2}
                 textTransform="uppercase"
             >
-                Your progress: {questionNumber}/{totalQuestions}
+                Your Progress: {questionNumber + 1}/{totalQuestions}
             </Box>
 
-            <Box fontSize="sm" mb={1}>
+            {/* Category */}
+            {/* 문제 카테고리 */}
+            <Box fontSize="sm" mb={2}>
                 {category}
             </Box>
 
-            <Heading as="h1" size="lg">
-                <p dangerouslySetInnerHTML={{ __html: question }} />
+            {/* Question */}
+            {/* 문제 내용 */}
+            <Heading size="lg" mb={6}>
+                <Box as="span" dangerouslySetInnerHTML={{ __html: question }} />
             </Heading>
 
-            <Flex direction="column">
-                <Box w="100%" mt={4} mb={4}>
-                    <AppButton
-                        colorScheme="purple"
-                        variant="outline"
-                        onClick={checkAnswer}
-                        value="True"
-                        width="full"
-                    />
-                </Box>
+            {/* Answer buttons */}
+            {/* O / X 버튼 */}
+            <Box mb={3}>
+                <AppButton
+                    colorScheme="purple"
+                    variant="solid"
+                    onClick={checkAnswer}
+                    value="True"
+                    width="full"
+                />
+            </Box>
 
-                <Spacer />
-
-                <Box w="100%" mb={4}>
-                    <AppButton
-                        colorScheme="purple"
-                        variant="outline"
-                        onClick={checkAnswer}
-                        value="False"
-                        width="full"
-                    />
-                </Box>
-            </Flex>
+            <Box mb={6}>
+                <AppButton
+                    colorScheme="purple"
+                    variant="solid"
+                    onClick={checkAnswer}
+                    value="False"
+                    width="full"
+                />
+            </Box>
         </Box>
     );
 };
